@@ -1,6 +1,7 @@
-package io.androidblog.nytimessearch;
+package io.androidblog.nytimessearch.activities;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -22,9 +23,10 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import cz.msebera.android.httpclient.Header;
+import io.androidblog.nytimessearch.R;
 import io.androidblog.nytimessearch.adapters.ArticleRecyclerViewAdapter;
+import io.androidblog.nytimessearch.dialogs.FiltersDialogFragment;
 import io.androidblog.nytimessearch.models.Article;
 import io.androidblog.nytimessearch.utils.Constants;
 
@@ -116,6 +118,20 @@ public class SearchActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+
+        MenuItem filterItem = menu.findItem(R.id.iActionFilter);
+        filterItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                FragmentManager fm = getSupportFragmentManager();
+                FiltersDialogFragment editNameDialogFragment = FiltersDialogFragment.newInstance("Some Title");
+                editNameDialogFragment.show(fm, "fragment_edit_name");
+                return true;
+            }
+        });
+
+
         return super.onCreateOptionsMenu(menu);
 
     }
