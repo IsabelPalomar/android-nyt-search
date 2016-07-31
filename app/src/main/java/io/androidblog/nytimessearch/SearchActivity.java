@@ -1,12 +1,14 @@
 package io.androidblog.nytimessearch;
 
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -29,16 +31,14 @@ import io.androidblog.nytimessearch.utils.Constants;
 
 public class SearchActivity extends AppCompatActivity {
 
-    @BindView(R.id.etQuery)
-    TextView etQuery;
-    @BindView(R.id.btnSearch)
-    Button btnSearch;
     @BindView(R.id.rvNews)
     RecyclerView rvNews;
 
     ArrayList<Article> articles;
     ArticleRecyclerViewAdapter articleAdapter;
     StaggeredGridLayoutManager sglmNews;
+    private String DEFAULT_QUERY = "new york";
+
 
 
     @Override
@@ -49,20 +49,19 @@ public class SearchActivity extends AppCompatActivity {
 
         articles = new ArrayList<>();
 
-        rvNews.setHasFixedSize(true);
         sglmNews = new StaggeredGridLayoutManager(2, 1);
-        //sglmNews.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
         rvNews.setLayoutManager(sglmNews);
+        rvNews.setHasFixedSize(true);
+
         articleAdapter = new ArticleRecyclerViewAdapter(this, articles);
         rvNews.setAdapter(articleAdapter);
 
-        onArticleSearch();
+        fetchArticles(DEFAULT_QUERY);
 
 
     }
 
-    @OnClick(R.id.btnSearch) void onArticleSearch() {
-        String query = etQuery.getText().toString();
+    private void fetchArticles(String query) {
 
         AsyncHttpClient client = new AsyncHttpClient();
 
@@ -73,11 +72,10 @@ public class SearchActivity extends AppCompatActivity {
 
         articleAdapter.clear();
 
-
         client.get(Constants.BASE_URL, params, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                JSONArray articleJsonResults = null;
+                JSONArray articleJsonResults;
 
                 try {
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
@@ -95,6 +93,30 @@ public class SearchActivity extends AppCompatActivity {
                 super.onFailure(statusCode, headers, responseString, throwable);
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                fetchArticles(query);
+                searchView.clearFocus();
+                SearchActivity.this.setTitle(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
 
     }
 }
