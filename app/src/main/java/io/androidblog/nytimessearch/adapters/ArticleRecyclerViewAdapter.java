@@ -1,7 +1,9 @@
 package io.androidblog.nytimessearch.adapters;
 
 import android.content.Context;
+import android.graphics.Movie;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,10 +58,12 @@ public class ArticleRecyclerViewAdapter extends RecyclerView.Adapter<ArticleRecy
         if(!article.getThumbNail().equals("")){
             Picasso.with(getContext())
                     .load(article.getThumbNail())
+                    .resize(article.getThumbNailWidth(), article.getThumbNailHeight())
+                    .centerCrop()
                     .into(ivThumbnail);
         }
-
-
+        Log.d("DEBUG", String.valueOf(article.getThumbNailWidth()));
+        Log.d("DEBUG", String.valueOf(article.getThumbNailHeight()));
 
     }
 
@@ -86,5 +90,15 @@ public class ArticleRecyclerViewAdapter extends RecyclerView.Adapter<ArticleRecy
             tvHeadline = (TextView) itemView.findViewById(R.id.tvHeadline);
             ivThumbnail = (ImageView) itemView.findViewById(R.id.ivThumbnail);
         }
+    }
+
+    public void clear() {
+        mArticles.clear();
+        notifyDataSetChanged();
+    }
+
+    public void addAll(List<Article> list) {
+        mArticles.addAll(list);
+        notifyDataSetChanged();
     }
 }

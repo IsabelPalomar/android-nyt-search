@@ -14,6 +14,8 @@ public class Article {
     private String webUrl;
     private String headline;
     private String thumbNail;
+    private int thumbNailHeight;
+    private int thumbNailWidth;
 
     public String getWebUrl() {
         return webUrl;
@@ -26,6 +28,13 @@ public class Article {
     public String getThumbNail() {
         return thumbNail;
     }
+    public int getThumbNailHeight() {
+        return thumbNailHeight;
+    }
+
+    public int getThumbNailWidth() {
+        return thumbNailWidth;
+    }
 
     public Article(JSONObject jsonObject) throws JSONException {
         this.webUrl = jsonObject.getString("web_url");
@@ -33,8 +42,10 @@ public class Article {
 
         JSONArray multimedia = jsonObject.getJSONArray("multimedia");
         if(multimedia.length() >0){
-            JSONObject multimediaJson = multimedia.getJSONObject(0);
+            JSONObject multimediaJson = multimedia.getJSONObject(1);
             this.thumbNail = "http://www.nytimes.com/" + multimediaJson.getString("url");
+            this.thumbNailHeight = multimediaJson.getInt("height");
+            this.thumbNailWidth = multimediaJson.getInt("width");
         }
         else{
             this.thumbNail = "";

@@ -2,8 +2,8 @@ package io.androidblog.nytimessearch;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +38,8 @@ public class SearchActivity extends AppCompatActivity {
 
     ArrayList<Article> articles;
     ArticleRecyclerViewAdapter articleAdapter;
+    StaggeredGridLayoutManager sglmNews;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +49,15 @@ public class SearchActivity extends AppCompatActivity {
 
         articles = new ArrayList<>();
 
+        rvNews.setHasFixedSize(true);
+        sglmNews = new StaggeredGridLayoutManager(2, 1);
+        //sglmNews.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+        rvNews.setLayoutManager(sglmNews);
         articleAdapter = new ArticleRecyclerViewAdapter(this, articles);
         rvNews.setAdapter(articleAdapter);
-        rvNews.setLayoutManager(new LinearLayoutManager(this));
 
         onArticleSearch();
+
 
     }
 
@@ -65,6 +71,9 @@ public class SearchActivity extends AppCompatActivity {
         params.put("page", 0);
         params.put("q", query);
 
+        articleAdapter.clear();
+
+
         client.get(Constants.BASE_URL, params, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -73,6 +82,8 @@ public class SearchActivity extends AppCompatActivity {
                 try {
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
                     articles.addAll(Article.fromJSONArray(articleJsonResults));
+                    articleAdapter.addAll(articles);
+
                     articleAdapter.notifyDataSetChanged();
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -85,6 +96,5 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
 
-        Toast.makeText(this, query, Toast.LENGTH_SHORT).show();
     }
 }
