@@ -1,7 +1,9 @@
 package io.androidblog.nytimessearch.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Movie;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.androidblog.nytimessearch.R;
+import io.androidblog.nytimessearch.activities.ArticleActivity;
 import io.androidblog.nytimessearch.models.Article;
 
 public class ArticleRecyclerViewAdapter extends RecyclerView.Adapter<ArticleRecyclerViewAdapter.ViewHolder>{
@@ -48,11 +51,12 @@ public class ArticleRecyclerViewAdapter extends RecyclerView.Adapter<ArticleRecy
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Article article = mArticles.get(position);
+        final Article article = mArticles.get(position);
 
         // Set item views based on your views and data model
         TextView textView = holder.tvHeadline;
         ImageView ivThumbnail = holder.ivThumbnail;
+        CardView cvArticle = holder.cvArticle;
         textView.setText(article.getHeadline());
 
         if(!article.getThumbNail().equals("")){
@@ -62,6 +66,15 @@ public class ArticleRecyclerViewAdapter extends RecyclerView.Adapter<ArticleRecy
                     .centerCrop()
                     .into(ivThumbnail);
         }
+
+        cvArticle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(), ArticleActivity.class );
+                i.putExtra("article", article);
+                getContext().startActivity(i);
+            }
+        });
 
     }
 
@@ -75,6 +88,7 @@ public class ArticleRecyclerViewAdapter extends RecyclerView.Adapter<ArticleRecy
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
+        public CardView cvArticle;
         public TextView tvHeadline;
         public ImageView ivThumbnail;
 
@@ -85,6 +99,7 @@ public class ArticleRecyclerViewAdapter extends RecyclerView.Adapter<ArticleRecy
             // to access the context from any ViewHolder instance.
             super(itemView);
 
+            cvArticle = (CardView) itemView.findViewById(R.id.cvArticle);
             tvHeadline = (TextView) itemView.findViewById(R.id.tvHeadline);
             ivThumbnail = (ImageView) itemView.findViewById(R.id.ivThumbnail);
         }

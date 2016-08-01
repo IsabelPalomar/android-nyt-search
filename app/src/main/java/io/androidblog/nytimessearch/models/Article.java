@@ -2,6 +2,8 @@ package io.androidblog.nytimessearch.models;
 
 
 import android.graphics.Movie;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -9,7 +11,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Article {
+public class Article implements Parcelable {
 
     private String webUrl;
     private String headline;
@@ -67,4 +69,38 @@ public class Article {
         return results;
     }
 
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.webUrl);
+        dest.writeString(this.headline);
+        dest.writeString(this.thumbNail);
+        dest.writeInt(this.thumbNailHeight);
+        dest.writeInt(this.thumbNailWidth);
+    }
+
+    protected Article(Parcel in) {
+        this.webUrl = in.readString();
+        this.headline = in.readString();
+        this.thumbNail = in.readString();
+        this.thumbNailHeight = in.readInt();
+        this.thumbNailWidth = in.readInt();
+    }
+
+    public static final Parcelable.Creator<Article> CREATOR = new Parcelable.Creator<Article>() {
+        @Override
+        public Article createFromParcel(Parcel source) {
+            return new Article(source);
+        }
+
+        @Override
+        public Article[] newArray(int size) {
+            return new Article[size];
+        }
+    };
 }
