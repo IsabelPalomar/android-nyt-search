@@ -62,8 +62,6 @@ public class ArticleRecyclerViewAdapter extends RecyclerView.Adapter<ArticleRecy
                     .centerCrop()
                     .into(ivThumbnail);
         }
-        Log.d("DEBUG", String.valueOf(article.getThumbNailWidth()));
-        Log.d("DEBUG", String.valueOf(article.getThumbNailHeight()));
 
     }
 

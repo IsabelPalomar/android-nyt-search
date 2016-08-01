@@ -29,6 +29,7 @@ import io.androidblog.nytimessearch.adapters.ArticleRecyclerViewAdapter;
 import io.androidblog.nytimessearch.dialogs.FiltersDialogFragment;
 import io.androidblog.nytimessearch.models.Article;
 import io.androidblog.nytimessearch.utils.Constants;
+import io.androidblog.nytimessearch.utils.EndlessRecyclerViewScrollListener;
 
 
 public class SearchActivity extends AppCompatActivity {
@@ -40,8 +41,12 @@ public class SearchActivity extends AppCompatActivity {
     ArticleRecyclerViewAdapter articleAdapter;
     StaggeredGridLayoutManager sglmNews;
     private String DEFAULT_QUERY = "new york";
-
-
+    private int DEFAULT_PAGE = 0;
+    public String mQuery = DEFAULT_QUERY;
+    public String mBeginDate = "";
+    public String mSortOrder = "";
+    public String mNewsDesk = "";
+    int mPage = DEFAULT_PAGE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,24 +60,82 @@ public class SearchActivity extends AppCompatActivity {
         rvNews.setLayoutManager(sglmNews);
         rvNews.setHasFixedSize(true);
 
+        rvNews.addOnScrollListener(new EndlessRecyclerViewScrollListener(sglmNews) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                mPage = page;
+                fetchArticles("noClear");
+            }
+        });
+
         articleAdapter = new ArticleRecyclerViewAdapter(this, articles);
         rvNews.setAdapter(articleAdapter);
 
-        fetchArticles(DEFAULT_QUERY);
-
+        fetchArticles("");
 
     }
 
-    private void fetchArticles(String query) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                mQuery = query;
+                mNewsDesk = "";
+                fetchArticles("");
+                searchView.clearFocus();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
+
+        MenuItem filterItem = menu.findItem(R.id.iActionFilter);
+        filterItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                FragmentManager fm = getSupportFragmentManager();
+                FiltersDialogFragment editNameDialogFragment = FiltersDialogFragment.newInstance("Some Title");
+                editNameDialogFragment.show(fm, "fragment_filter_options");
+                return true;
+            }
+        });
+
+
+        return super.onCreateOptionsMenu(menu);
+
+    }
+
+    public void fetchArticles(String option) {
 
         AsyncHttpClient client = new AsyncHttpClient();
 
         RequestParams params = new RequestParams();
         params.put("api-key", "5448fa3d0ac24f27aec17d4afeb2ee42");
-        params.put("page", 0);
-        params.put("q", query);
+        params.put("page", mPage);
 
-        articleAdapter.clear();
+        if(!mBeginDate.equals(""))
+            params.put("begin_date", mBeginDate);
+        if(!mSortOrder.equals(""))
+            params.put("sort", mSortOrder);
+        if(!mQuery.equals(""))
+            params.put("q", mQuery);
+        if(!mNewsDesk.equals(""))
+            params.put("fq", mNewsDesk);
+
+        if(option.equals(""))
+            articleAdapter.clear();
 
         client.get(Constants.BASE_URL, params, new JsonHttpResponseHandler(){
             @Override
@@ -95,44 +158,5 @@ public class SearchActivity extends AppCompatActivity {
                 super.onFailure(statusCode, headers, responseString, throwable);
             }
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                fetchArticles(query);
-                searchView.clearFocus();
-                SearchActivity.this.setTitle(query);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-        });
-
-
-        MenuItem filterItem = menu.findItem(R.id.iActionFilter);
-        filterItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                FragmentManager fm = getSupportFragmentManager();
-                FiltersDialogFragment editNameDialogFragment = FiltersDialogFragment.newInstance("Some Title");
-                editNameDialogFragment.show(fm, "fragment_edit_name");
-                return true;
-            }
-        });
-
-
-        return super.onCreateOptionsMenu(menu);
-
     }
 }

@@ -1,11 +1,12 @@
 <resources>
-    <string name="app_name">NYTimesSearch</string>
+    <string name="app_name">New York Times Search</string>
     <string name="hint">Enter search query</string>
     <string name="search">Search</string>
     <string name="app_message_apply">Apply</string>
     <string name="app_message_cancel">Cancel</string>
     <string name="app_message_filter_dialog_title">Select filters</string>
     <array name="sortOptions">
+        <item></item>
         <item>Oldest</item>
         <item>Newest</item>
     </array>
