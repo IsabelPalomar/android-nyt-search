@@ -9,11 +9,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,9 +59,9 @@ public class ArticleRecyclerViewAdapter extends RecyclerView.Adapter<ArticleRecy
         textView.setText(article.getHeadline());
 
         if(!article.getThumbNail().equals("")){
-            Picasso.with(getContext())
+            Glide.with(getContext())
                     .load(article.getThumbNail())
-                    .resize(article.getThumbNailWidth(), article.getThumbNailHeight())
+                    .override(article.getThumbNailWidth(), article.getThumbNailHeight())
                     .centerCrop()
                     .into(ivThumbnail);
         }
