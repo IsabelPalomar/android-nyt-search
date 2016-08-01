@@ -6,5 +6,6 @@
     <dimen name="activity_default_margin">16dp</dimen>
     <dimen name="activity_big_padding">25dp</dimen>
     <dimen name="activity_big_margin">25dp</dimen>
+    <dimen name="xsmall_padding">2dp</dimen>
 
 </resources>

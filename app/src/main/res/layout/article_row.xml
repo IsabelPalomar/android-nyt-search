@@ -15,7 +15,7 @@
             android:id="@+id/ivThumbnail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scaleType="centerCrop"/>
+            android:scaleType="centerCrop" />
 
         <TextView
             android:id="@+id/tvHeadline"
@@ -25,7 +25,9 @@
             android:layout_below="@+id/ivThumbnail"
             android:background="@color/colorPrimaryDark"
             android:gravity="center"
-            android:textAppearance="?android:textAppearanceSmall" />
+            android:padding="@dimen/xsmall_padding"
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textColor="@color/colorPrimary" />
 
     </RelativeLayout>
 

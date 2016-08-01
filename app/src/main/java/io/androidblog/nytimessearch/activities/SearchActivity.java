@@ -1,6 +1,10 @@
 package io.androidblog.nytimessearch.activities;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -34,18 +38,17 @@ import io.androidblog.nytimessearch.utils.EndlessRecyclerViewScrollListener;
 
 public class SearchActivity extends AppCompatActivity {
 
+    public String mBeginDate = "";
+    public String mSortOrder = "";
+    public String mNewsDesk = "";
     @BindView(R.id.rvNews)
     RecyclerView rvNews;
-
     ArrayList<Article> articles;
     ArticleRecyclerViewAdapter articleAdapter;
     StaggeredGridLayoutManager sglmNews;
     private String DEFAULT_QUERY = "new york";
-    private int DEFAULT_PAGE = 0;
     public String mQuery = DEFAULT_QUERY;
-    public String mBeginDate = "";
-    public String mSortOrder = "";
-    public String mNewsDesk = "";
+    private int DEFAULT_PAGE = 0;
     int mPage = DEFAULT_PAGE;
 
     @Override
@@ -119,44 +122,55 @@ public class SearchActivity extends AppCompatActivity {
 
     public void fetchArticles(String option) {
 
-        AsyncHttpClient client = new AsyncHttpClient();
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-        RequestParams params = new RequestParams();
-        params.put("api-key", "5448fa3d0ac24f27aec17d4afeb2ee42");
-        params.put("page", mPage);
+        if (networkInfo != null && networkInfo.isConnected()) {
 
-        if(!mBeginDate.equals(""))
-            params.put("begin_date", mBeginDate);
-        if(!mSortOrder.equals(""))
-            params.put("sort", mSortOrder);
-        if(!mQuery.equals(""))
-            params.put("q", mQuery);
-        if(!mNewsDesk.equals(""))
-            params.put("fq", mNewsDesk);
+            AsyncHttpClient client = new AsyncHttpClient();
 
-        if(option.equals(""))
-            articleAdapter.clear();
+            RequestParams params = new RequestParams();
+            params.put("api-key", "5448fa3d0ac24f27aec17d4afeb2ee42");
+            params.put("page", mPage);
 
-        client.get(Constants.BASE_URL, params, new JsonHttpResponseHandler(){
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                JSONArray articleJsonResults;
+            if (!mBeginDate.equals(""))
+                params.put("begin_date", mBeginDate);
+            if (!mSortOrder.equals(""))
+                params.put("sort", mSortOrder);
+            if (!mQuery.equals(""))
+                params.put("q", mQuery);
+            if (!mNewsDesk.equals(""))
+                params.put("fq", mNewsDesk);
 
-                try {
-                    articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
-                    articles.addAll(Article.fromJSONArray(articleJsonResults));
-                    articleAdapter.addAll(articles);
+            if (option.equals(""))
+                articleAdapter.clear();
 
-                    articleAdapter.notifyDataSetChanged();
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            client.get(Constants.BASE_URL, params, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    JSONArray articleJsonResults;
+
+                    try {
+                        articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
+                        articles.addAll(Article.fromJSONArray(articleJsonResults));
+                        articleAdapter.addAll(articles);
+
+                        articleAdapter.notifyDataSetChanged();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                super.onFailure(statusCode, headers, responseString, throwable);
-            }
-        });
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                    super.onFailure(statusCode, headers, responseString, throwable);
+                }
+            });
+
+        }
+        else {
+            Snackbar.make(rvNews, "No connection", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        }
     }
 }
